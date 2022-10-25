@@ -1,76 +1,107 @@
 # Routes
 
-- ## GET /api/users
+-   ## GET /api/users
+
     get user details from access token
-    ### request
+
+    ### request body
+
         {
-            access_token
+            accessToken
         }
+
+    ### request headers
+
+        Authorization: Bearer ${accessToken}
+
     ### response
+
         {
             username
         }
 
-- ## POST /api/users
+-   ## POST /api/users
+
     register a new user
+
     ### request
+
         {
             username,
             password
         }
+
     ### response
+
         {
-            access_token: {
+            accessToken: {
                 token,
                 expiresAt
             },
             refreshToken
         }
 
-- ## PATCH /api/users
+-   ## PATCH /api/users
+
     modifies user
-    ### request
+
+    ### request body
+
         {
-            access_token
+            username?,
+            password?
         }
 
-- ## DELETE /api/users
+    ### request headers
+
+        Authorization: Bearer ${accessToken}
+
+-   ## DELETE /api/users
+
     deletes user
-    ### request
-        {
-            access_token
-        }
 
-- ## POST /api/login
+    ### request headers
+
+        Authorization: Bearer ${accessToken}
+
+-   ## POST /api/login
+
     login
+
     ### request
+
         {
             username,
             password
         }
+
     ### response
+
         {
-            access_token: {
+            accessToken: {
                 token,
                 expiresAt
             },
             refreshToken
         }
 
-- ## POST /api/logout
+-   ## POST /api/logout
+
     logout
+
     ### request
+
         {
-            refresh_token
+            refreshToken
         }
 
-- ## POST /api/token
+-   ## POST /api/token
     get new access token
     ### request
         {
-            refresh_token
+            refreshToken
         }
     ### response
         {
-            access_token
+            accessToken
         }
