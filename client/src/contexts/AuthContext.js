@@ -45,11 +45,7 @@ export const AuthContextProvider = (props) => {
 				if (refreshToken) fetchNewAccessToken();
 				return;
 			}
-			if (!refreshToken) {
-				setAccessToken(null);
-				localStorage.removeItem("access");
-				return;
-			}
+			if (!refreshToken) return resetStates();
 			const now = new Date();
 			const expiresAt = new Date(accessToken.expiresAt);
 			if (now >= expiresAt) return fetchNewAccessToken();
