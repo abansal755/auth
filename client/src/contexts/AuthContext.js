@@ -95,10 +95,7 @@ export const AuthContextProvider = (props) => {
 				refreshToken,
 			});
 		} catch {}
-		setAccessToken(null);
-		setRefreshToken(null);
-		setUser(null);
-		localStorage.clear();
+		resetStates();
 	};
 
 	return (
