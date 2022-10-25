@@ -18,6 +18,13 @@ export const AuthContextProvider = (props) => {
 	);
 	const [user, setUser] = useState(null);
 
+	const resetStates = () => {
+		setAccessToken(null);
+		setRefreshToken(null);
+		setUser(null);
+		localStorage.clear();
+	};
+
 	const fetchNewAccessToken = async () => {
 		try {
 			const { data } = await axios.post("/api/token", {
@@ -28,8 +35,7 @@ export const AuthContextProvider = (props) => {
 			localStorage.setItem("access", JSON.stringify(data.accessToken));
 		} catch {
 			// delete refresh token
-			setRefreshToken(null);
-			localStorage.removeItem("refresh");
+			resetStates();
 		}
 	};
 
@@ -62,8 +68,7 @@ export const AuthContextProvider = (props) => {
 
 				setUser(data);
 			} catch {
-				setRefreshToken(null);
-				localStorage.removeItem("refresh");
+				resetStates();
 			}
 		})();
 	}, [accessToken]);
