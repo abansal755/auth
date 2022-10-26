@@ -59,10 +59,8 @@ export const AuthContextProvider = (props) => {
 	};
 
 	const logout = async () => {
-		try {
-			await logoutService(refreshToken);
-		} catch {}
 		resetStates();
+		logoutService(refreshToken);
 	};
 
 	useEffect(() => {
