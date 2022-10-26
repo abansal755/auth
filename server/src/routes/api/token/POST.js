@@ -1,6 +1,9 @@
 import RefreshToken from "../../../models/RefreshToken";
-import { refresh } from "../../../utils/decodeJwtToken";
-import { access } from "../../../utils/encodeJwtToken";
+import { refresh as decodeRefresh } from "../../../utils/decodeJwtToken";
+import {
+	access as encodeAccess,
+	refresh as encodeRefresh,
+} from "../../../utils/encodeJwtToken";
 
 export const controller = async (req, res) => {
 	let { refreshToken } = req.body;
@@ -11,8 +14,14 @@ export const controller = async (req, res) => {
 	if (!token)
 		return res.status(400).json({ message: "Invalid refresh token" });
 
-	const user = await refresh(refreshToken);
-	const accessToken = await access(user);
+	const user = await decodeRefresh(refreshToken);
+	const accessToken = await encodeAccess(user);
 
-	res.json({ accessToken });
+	await RefreshToken.findOneAndDelete({ token: refreshToken });
+	const newRefreshToken = await encodeRefresh(user);
+
+	res.json({
+		accessToken,
+		refreshToken: newRefreshToken,
+	});
 };

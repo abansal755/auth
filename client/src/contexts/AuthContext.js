@@ -33,6 +33,9 @@ export const AuthContextProvider = (props) => {
 
 			setAccessToken(data.accessToken);
 			localStorage.setItem("access", JSON.stringify(data.accessToken));
+
+			setRefreshToken(data.refreshToken);
+			localStorage.setItem("refresh", data.refreshToken);
 		} catch {
 			// delete refresh token
 			resetStates();
