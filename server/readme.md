@@ -103,5 +103,9 @@
         }
     ### response
         {
-            accessToken
+            accessToken: {
+                token,
+                expiresAt
+            },
+            refreshToken
         }
