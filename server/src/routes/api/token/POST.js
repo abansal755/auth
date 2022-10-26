@@ -4,6 +4,7 @@ import {
 	access as encodeAccess,
 	refresh as encodeRefresh,
 } from "../../../utils/encodeJwtToken";
+import User from "../../../models/User";
 
 export const controller = async (req, res) => {
 	let { refreshToken } = req.body;
@@ -15,6 +16,10 @@ export const controller = async (req, res) => {
 		return res.status(400).json({ message: "Invalid refresh token" });
 
 	const user = await decodeRefresh(refreshToken);
+	const userInDb = await User.findOne({ username: user.username });
+	if (!userInDb)
+		return res.status(400).json({ message: "Invalid refresh token" });
+
 	const accessToken = await encodeAccess(user);
 
 	await RefreshToken.findOneAndDelete({ token: refreshToken });
