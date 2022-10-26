@@ -40,6 +40,7 @@ export const AuthContextProvider = (props) => {
 				return;
 			}
 			if (!refreshToken) return resetStates();
+			console.log("sup");
 			const now = new Date();
 			const expiresAt = new Date(accessToken.expiresAt);
 			if (now >= expiresAt) return fetchNewAccessToken();

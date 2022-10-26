@@ -1,6 +1,7 @@
 import User from "../../../models/User";
 import hashPassword from "../../../utils/hashPassword";
 import { access, refresh } from "../../../utils/encodeJwtToken";
+import { v4 as uuidv4 } from "uuid";
 
 export const controller = async (req, res) => {
 	const { username, password } = req.body;
@@ -21,6 +22,6 @@ export const controller = async (req, res) => {
 	await user.save();
 
 	const accessToken = await access(user);
-	const refreshToken = await refresh(user);
+	const refreshToken = await refresh(user, uuidv4());
 	res.json({ accessToken, refreshToken });
 };

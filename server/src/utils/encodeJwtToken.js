@@ -25,10 +25,13 @@ export const access = (user) => {
 	});
 };
 
-export const refresh = async (user) => {
+export const refresh = async (user, family) => {
 	const token = await new Promise((resolve, reject) => {
 		jwt.sign(
-			{ username: user.username },
+			{
+				username: user.username,
+				family,
+			},
 			JWT_REFRESH_SECRET,
 			(err, token) => {
 				if (err) reject(err);
@@ -36,7 +39,10 @@ export const refresh = async (user) => {
 			}
 		);
 	});
-	const refreshToken = new RefreshToken({ token });
+	const refreshToken = new RefreshToken({
+		token,
+		family,
+	});
 	await refreshToken.save();
 	return token;
 };
