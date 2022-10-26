@@ -1,7 +1,7 @@
 import { useContext, useEffect } from "react";
 import { useState } from "react";
 import { createContext } from "react";
-import useCachedState from "../hooks/useCachedState";
+import usePersistedState from "../hooks/usePersistedState";
 import {
 	fetchNewTokens as fetchNewTokensService,
 	fetchUser as fetchUserService,
@@ -17,9 +17,9 @@ export const useAuthContext = () => {
 
 export const AuthContextProvider = (props) => {
 	const { cachedState: accessToken, setCachedState: setAccessToken } =
-		useCachedState({ key: "access" });
+		usePersistedState({ key: "access" });
 	const { cachedState: refreshToken, setCachedState: setRefreshToken } =
-		useCachedState({ key: "refresh" });
+		usePersistedState({ key: "refresh" });
 	const [user, setUser] = useState(null);
 
 	const resetStates = () => {

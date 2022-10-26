@@ -8,7 +8,7 @@ const defaultDeserialize = (data) => {
 	return JSON.parse(data);
 };
 
-const useCachedState = ({
+const usePersistedState = ({
 	serialize = defaultSerialize,
 	deserialize = defaultDeserialize,
 	key,
@@ -33,4 +33,4 @@ const useCachedState = ({
 	};
 };
 
-export default useCachedState;
+export default usePersistedState;
