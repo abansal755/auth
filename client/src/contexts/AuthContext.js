@@ -1,8 +1,13 @@
 import { useContext, useEffect } from "react";
 import { useState } from "react";
 import { createContext } from "react";
-import axios from "../lib/axios";
 import useCachedState from "../hooks/useCachedState";
+import {
+	fetchNewTokens as fetchNewTokensService,
+	fetchUser as fetchUserService,
+	login as loginService,
+	logout as logoutService,
+} from "../services/Auth";
 
 const AuthContext = createContext({});
 
@@ -25,12 +30,39 @@ export const AuthContextProvider = (props) => {
 
 	const fetchNewAccessToken = async () => {
 		try {
-			const { data } = await axios.post("/api/token", { refreshToken });
+			const data = await fetchNewTokensService(refreshToken);
 			setAccessToken(data.accessToken);
 			setRefreshToken(data.refreshToken);
 		} catch {
 			resetStates();
 		}
+	};
+
+	const fetchUser = async () => {
+		try {
+			const user = await fetchUserService(accessToken.token);
+			setUser(user);
+		} catch {
+			resetStates();
+		}
+	};
+
+	const login = async (username, password) => {
+		try {
+			const { accessToken, refreshToken } = await loginService(
+				username,
+				password
+			);
+			setAccessToken(accessToken);
+			setRefreshToken(refreshToken);
+		} catch {}
+	};
+
+	const logout = async () => {
+		try {
+			await logoutService(refreshToken);
+		} catch {}
+		resetStates();
 	};
 
 	useEffect(() => {
@@ -40,7 +72,6 @@ export const AuthContextProvider = (props) => {
 				return;
 			}
 			if (!refreshToken) return resetStates();
-			console.log("sup");
 			const now = new Date();
 			const expiresAt = new Date(accessToken.expiresAt);
 			if (now >= expiresAt) return fetchNewAccessToken();
@@ -50,37 +81,9 @@ export const AuthContextProvider = (props) => {
 				fetchNewAccessToken();
 			}, timeDiff);
 
-			try {
-				const { data } = await axios.get("/api/users", {
-					headers: {
-						Authorization: `Bearer ${accessToken.token}`,
-					},
-				});
-				setUser(data);
-			} catch {
-				resetStates();
-			}
+			if (!user) fetchUser();
 		})();
 	}, [accessToken]);
-
-	const login = async (username, password) => {
-		try {
-			const { data } = await axios.post("/api/login", {
-				username,
-				password,
-			});
-			const { accessToken, refreshToken } = data;
-			setAccessToken(accessToken);
-			setRefreshToken(refreshToken);
-		} catch {}
-	};
-
-	const logout = async () => {
-		try {
-			await axios.post("/api/logout", { refreshToken });
-		} catch {}
-		resetStates();
-	};
 
 	return (
 		<AuthContext.Provider
