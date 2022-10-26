@@ -12,7 +12,7 @@ export default () => {
 		auth.login(username, password);
 	};
 
-	if (auth.loggedIn) return <button onClick={auth.logout}>Logout</button>;
+	if (auth.isLoggedIn) return <button onClick={auth.logout}>Logout</button>;
 	else
 		return (
 			<form onSubmit={formSubmitHandler}>
