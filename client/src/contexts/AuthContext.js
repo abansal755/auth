@@ -2,6 +2,7 @@ import { useContext, useEffect } from "react";
 import { useState } from "react";
 import { createContext } from "react";
 import axios from "../lib/axios";
+import useCachedState from "../hooks/useCachedState";
 
 const AuthContext = createContext({});
 
@@ -10,34 +11,24 @@ export const useAuthContext = () => {
 };
 
 export const AuthContextProvider = (props) => {
-	const [accessToken, setAccessToken] = useState(
-		JSON.parse(localStorage.getItem("access"))
-	);
-	const [refreshToken, setRefreshToken] = useState(
-		localStorage.getItem("refresh")
-	);
+	const { cachedState: accessToken, setCachedState: setAccessToken } =
+		useCachedState({ key: "access" });
+	const { cachedState: refreshToken, setCachedState: setRefreshToken } =
+		useCachedState({ key: "refresh" });
 	const [user, setUser] = useState(null);
 
 	const resetStates = () => {
 		setAccessToken(null);
 		setRefreshToken(null);
 		setUser(null);
-		localStorage.clear();
 	};
 
 	const fetchNewAccessToken = async () => {
 		try {
-			const { data } = await axios.post("/api/token", {
-				refreshToken,
-			});
-
+			const { data } = await axios.post("/api/token", { refreshToken });
 			setAccessToken(data.accessToken);
-			localStorage.setItem("access", JSON.stringify(data.accessToken));
-
 			setRefreshToken(data.refreshToken);
-			localStorage.setItem("refresh", data.refreshToken);
 		} catch {
-			// delete refresh token
 			resetStates();
 		}
 	};
@@ -64,7 +55,6 @@ export const AuthContextProvider = (props) => {
 						Authorization: `Bearer ${accessToken.token}`,
 					},
 				});
-
 				setUser(data);
 			} catch {
 				resetStates();
@@ -79,20 +69,14 @@ export const AuthContextProvider = (props) => {
 				password,
 			});
 			const { accessToken, refreshToken } = data;
-
 			setAccessToken(accessToken);
-			localStorage.setItem("access", JSON.stringify(accessToken));
-
 			setRefreshToken(refreshToken);
-			localStorage.setItem("refresh", refreshToken);
 		} catch {}
 	};
 
 	const logout = async () => {
 		try {
-			await axios.post("/api/logout", {
-				refreshToken,
-			});
+			await axios.post("/api/logout", { refreshToken });
 		} catch {}
 		resetStates();
 	};
