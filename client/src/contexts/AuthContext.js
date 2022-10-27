@@ -65,14 +65,15 @@ export const AuthContextProvider = (props) => {
 	};
 
 	useEffect(() => {
-		if (!accessToken) {
-			if (refreshToken) fetchNewTokens();
+		if (!refreshToken) {
+			resetStates();
 			return;
 		}
-		if (!refreshToken) return resetStates();
-
-		const timeDiff = getTimeDiff(accessToken);
-		if (timeDiff <= 0) return fetchNewTokens();
+		const timeDiff = accessToken ? getTimeDiff(accessToken) : 0;
+		if (!accessToken || timeDiff <= 0) {
+			fetchNewTokens();
+			return;
+		}
 
 		const id = setTimeout(() => {
 			fetchNewTokens();
