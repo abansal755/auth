@@ -2,17 +2,18 @@ import { useContext, useEffect } from "react";
 import { useState } from "react";
 import { createContext } from "react";
 import usePersistedState from "../hooks/usePersistedState";
-import {
-	fetchNewTokens as fetchNewTokensService,
-	fetchUser as fetchUserService,
-	login as loginService,
-	logout as logoutService,
-} from "../services/Auth";
+import * as authService from "../services/Auth";
 
 const AuthContext = createContext({});
 
 export const useAuthContext = () => {
 	return useContext(AuthContext);
+};
+
+const getTimeDiff = (accessToken) => {
+	const now = new Date();
+	const expiresAt = new Date(accessToken.expiresAt);
+	return expiresAt.getTime() - now.getTime();
 };
 
 export const AuthContextProvider = (props) => {
@@ -30,7 +31,7 @@ export const AuthContextProvider = (props) => {
 
 	const fetchNewAccessToken = async () => {
 		try {
-			const data = await fetchNewTokensService(refreshToken);
+			const data = await authService.fetchNewTokens(refreshToken);
 			setAccessToken(data.accessToken);
 			setRefreshToken(data.refreshToken);
 		} catch {
@@ -40,7 +41,7 @@ export const AuthContextProvider = (props) => {
 
 	const fetchUser = async () => {
 		try {
-			const user = await fetchUserService(accessToken.token);
+			const user = await authService.fetchUser(accessToken.token);
 			setUser(user);
 		} catch {
 			resetStates();
@@ -49,7 +50,7 @@ export const AuthContextProvider = (props) => {
 
 	const login = async (username, password) => {
 		try {
-			const { accessToken, refreshToken } = await loginService(
+			const { accessToken, refreshToken } = await authService.login(
 				username,
 				password
 			);
@@ -58,30 +59,29 @@ export const AuthContextProvider = (props) => {
 		} catch {}
 	};
 
-	const logout = async () => {
+	const logout = () => {
 		resetStates();
-		logoutService(refreshToken);
+		authService.logout(refreshToken);
 	};
 
 	useEffect(() => {
-		(async () => {
-			if (!accessToken) {
-				if (refreshToken) fetchNewAccessToken();
-				return;
-			}
-			if (!refreshToken) return resetStates();
-			const now = new Date();
-			const expiresAt = new Date(accessToken.expiresAt);
-			if (now >= expiresAt) return fetchNewAccessToken();
+		if (!accessToken) {
+			if (refreshToken) fetchNewAccessToken();
+			return;
+		}
+		if (!refreshToken) return resetStates();
 
-			const timeDiff = expiresAt.getTime() - now.getTime();
-			setTimeout(() => {
-				fetchNewAccessToken();
-			}, timeDiff);
+		const timeDiff = getTimeDiff(accessToken);
+		if (timeDiff <= 0) return fetchNewAccessToken();
 
-			if (!user) fetchUser();
-		})();
-	}, [accessToken]);
+		const id = setTimeout(() => {
+			fetchNewAccessToken();
+		}, timeDiff);
+
+		if (!user) fetchUser();
+
+		return () => clearTimeout(id);
+	}, [accessToken, refreshToken, user]);
 
 	return (
 		<AuthContext.Provider
