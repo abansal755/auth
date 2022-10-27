@@ -29,7 +29,7 @@ export const AuthContextProvider = (props) => {
 		setUser(null);
 	};
 
-	const fetchNewAccessToken = async () => {
+	const fetchNewTokens = async () => {
 		try {
 			const data = await authService.fetchNewTokens(refreshToken);
 			setAccessToken(data.accessToken);
@@ -66,16 +66,16 @@ export const AuthContextProvider = (props) => {
 
 	useEffect(() => {
 		if (!accessToken) {
-			if (refreshToken) fetchNewAccessToken();
+			if (refreshToken) fetchNewTokens();
 			return;
 		}
 		if (!refreshToken) return resetStates();
 
 		const timeDiff = getTimeDiff(accessToken);
-		if (timeDiff <= 0) return fetchNewAccessToken();
+		if (timeDiff <= 0) return fetchNewTokens();
 
 		const id = setTimeout(() => {
-			fetchNewAccessToken();
+			fetchNewTokens();
 		}, timeDiff);
 
 		if (!user) fetchUser();

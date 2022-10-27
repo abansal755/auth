@@ -1,16 +1,8 @@
 import { useState } from "react";
 
-const defaultSerialize = (data) => {
-	return JSON.stringify(data);
-};
-
-const defaultDeserialize = (data) => {
-	return JSON.parse(data);
-};
-
 const usePersistedState = ({
-	serialize = defaultSerialize,
-	deserialize = defaultDeserialize,
+	serialize = JSON.stringify,
+	deserialize = JSON.parse,
 	key,
 }) => {
 	const [data, setData] = useState(deserialize(localStorage.getItem(key)));
